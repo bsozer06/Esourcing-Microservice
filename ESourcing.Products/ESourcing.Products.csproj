@@ -2,9 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <UserSecretsId>2d76fb51-d84b-426b-b3d2-1376c480ac18</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="MongoDB.Bson" Version="2.11.6" />
     <PackageReference Include="MongoDB.Driver" Version="2.11.6" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
