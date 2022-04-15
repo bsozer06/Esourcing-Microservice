@@ -35,16 +35,29 @@ namespace ESourcing.Products
 
             services.AddControllers();
 
-            #region MongoDb configure
-
+            #region Configuration Dependencies
             services.Configure<ProductDatabaseSettings>(Configuration.GetSection(nameof(ProductDatabaseSettings)));
-            services.AddSingleton<IProductDatabaseSettings>(opt => opt.GetRequiredService<IOptions<ProductDatabaseSettings>>().Value);
-            services.AddTransient<IProductContext, ProductContext>();
-            services.AddTransient<IProductRepository, ProductRepository>();
-
+            services.AddSingleton<IProductDatabaseSettings>(sp => sp.GetRequiredService<IOptions<ProductDatabaseSettings>>().Value);
             #endregion
 
-         
+            #region Project Dependencies
+            services.AddTransient<IProductContext, ProductContext>();
+            services.AddTransient<IProductRepository, ProductRepository>();
+            #endregion
+
+            #region Swagger Dependencies
+            services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new OpenApiInfo
+                    {
+                        Version = "v1",
+                        Title = "ESourcing.Producys"
+                    });
+                }); 
+            #endregion
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
