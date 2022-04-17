@@ -1,3 +1,7 @@
+using Esourcing.Sourcing.Data;
+using Esourcing.Sourcing.Data.Interface;
+using Esourcing.Sourcing.Repositories;
+using Esourcing.Sourcing.Repositories.Interfaces;
 using Esourcing.Sourcing.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,6 +37,19 @@ namespace Esourcing.Sourcing
 
             services.Configure<SourcingDatabaseSettings>(Configuration.GetSection(nameof(SourcingDatabaseSettings)));
             services.AddSingleton<ISourcingDatabaseSettings>(x => x.GetRequiredService<IOptions<SourcingDatabaseSettings>>().Value);
+
+            #endregion
+
+            #region Database dependencies
+
+            services.AddTransient<ISourcingContext, SourcingContext>();
+
+            #endregion
+
+            #region Repositories dependencies
+
+            services.AddTransient<IAuctionRepository, AuctionRepository>();
+            services.AddTransient<IBidRepository, BidRepository>();
             
             #endregion
         }
