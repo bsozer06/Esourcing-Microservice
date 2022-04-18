@@ -101,15 +101,15 @@ namespace EventBusRabbitMQ
         }
 
 
-        //public IModel CreateModel()
-        //{
-        //    if (!IsConnected)
-        //    {
+        public IModel CreateModel()
+        {
+            if (!IsConnected)
+            {
 
-        //    }
+            }
 
-        //    return _connection.CreateModel()
-        //}
+            return _connection.CreateModel();
+        }
 
 
         public void Dispose()
