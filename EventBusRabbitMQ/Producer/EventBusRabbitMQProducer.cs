@@ -20,11 +20,10 @@ namespace EventBusRabbitMQ.Producer
         private readonly ILogger<EventBusRabbitMQProducer> _logger;
         private readonly int _retryCount;
 
-
-        public EventBusRabbitMQProducer(ILogger<EventBusRabbitMQProducer> logger, IRabbitMQPersistentConnection persistentConnection, int retryCount)
+        public EventBusRabbitMQProducer(IRabbitMQPersistentConnection persistentConnection, ILogger<EventBusRabbitMQProducer> logger, int retryCount = 5)
         {
-            _logger = logger;
             _persistentConnection = persistentConnection;
+            _logger = logger;
             _retryCount = retryCount;
         }
 
@@ -35,16 +34,16 @@ namespace EventBusRabbitMQ.Producer
                 _persistentConnection.TryConnect();
             }
 
-            var policy = RetryPolicy.Handle<SocketException>()
-                .Or<BrokerUnreachableException>()
-                .WaitAndRetry(_retryCount, retryAttemp => TimeSpan.FromSeconds(Math.Pow(2, retryAttemp)), (ex, time) =>
-                {
-                    _logger.LogWarning(ex, "RabbitMQ Client could not connect after {TimeOut}s ({ExceptionMessage})", $"{time.TotalSeconds:n1}", ex.Message);
-                });
+            var policy = RetryPolicy.Handle<BrokerUnreachableException>()
+            .Or<SocketException>()
+            .WaitAndRetry(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+            {
+                _logger.LogWarning(ex, "Could not publish event: {EventId} after {Timeout}s ({ExceptionMessage})", @event.RequestId, $"{time.TotalSeconds:n1}", ex.Message);
+            });
 
             using (var channel = _persistentConnection.CreateModel())
             {
-                channel.QueueDeclare(queueName, durable:false, exclusive:false, autoDelete:false, arguments: null);
+                channel.QueueDeclare(queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
                 var message = JsonConvert.SerializeObject(@event);
                 var body = Encoding.UTF8.GetBytes(message);
 
@@ -53,25 +52,23 @@ namespace EventBusRabbitMQ.Producer
                     IBasicProperties properties = channel.CreateBasicProperties();
                     properties.Persistent = true;
                     properties.DeliveryMode = 2;
+
                     channel.ConfirmSelect();
-                    channel.BasicPublish
-                    (
+                    channel.BasicPublish(
                         exchange: "",
                         routingKey: queueName,
                         mandatory: true,
                         basicProperties: properties,
-                        body: body
-                    );
+                        body: body);
                     channel.WaitForConfirmsOrDie();
-                    channel.BasicAcks += (sender, args) =>
+
+                    channel.BasicAcks += (sender, eventArgs) =>
                     {
                         Console.WriteLine("Sent RabbitMQ");
+                        //implement ack handle
                     };
                 });
             }
-
         }
-
-
     }
 }
