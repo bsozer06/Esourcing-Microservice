@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ordering.Infrastructure.Data;
+using System;
 
 namespace ESourcing.Order.Extensions
 {
@@ -22,14 +23,13 @@ namespace ESourcing.Order.Extensions
 
                     OrderContextSeed.SeedAsync(orderContext).Wait();
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
-
                     throw;
                 }
-
-                return host;
             }
+
+            return host;
         }
     }
 }

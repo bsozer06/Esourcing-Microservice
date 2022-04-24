@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace Ordering.Infrastructure.Repositories
 {
-    public class OrdeRepository : Repository<Order>, IOrderRepository
+    public class OrderRepository : Repository<Order>, IOrderRepository
     {
-        public OrdeRepository(OrderContext context): base(context)
+        public OrderRepository(OrderContext context): base(context)
         {
         }
 

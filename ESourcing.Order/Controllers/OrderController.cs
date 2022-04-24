@@ -17,9 +17,9 @@ namespace ESourcing.Order.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly ILogger _logger;
+        private readonly ILogger<OrderController> _logger;
 
-        public OrderController(IMediator mediator, ILogger logger)
+        public OrderController(IMediator mediator, ILogger<OrderController> logger)
         {
             _mediator = mediator;
             _logger = logger;
@@ -33,20 +33,17 @@ namespace ESourcing.Order.Controllers
             var query = new GetOrderBySellerNameQuery(userName);
 
             var orders = await _mediator.Send(query);
-
             if (orders.Count() == decimal.Zero)
                 return NotFound();
-            
+
             return Ok(orders);
         }
-
 
         [HttpPost]
         [ProducesResponseType(typeof(OrderResponse), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<OrderResponse>> OrderCreate([FromBody] OrderCreateCommand command)
         {
             var result = await _mediator.Send(command);
-
             return Ok(result);
         }
 

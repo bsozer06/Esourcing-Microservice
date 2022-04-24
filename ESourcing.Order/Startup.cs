@@ -30,6 +30,10 @@ namespace ESourcing.Order
         public void ConfigureServices(IServiceCollection services)
         {
 
+            var serviceProvider = services.BuildServiceProvider();
+            var logger = serviceProvider.GetService<ILogger<Startup>>();
+            services.AddSingleton(typeof(ILogger), logger);
+
             services.AddControllers();
 
             #region Add Order.Infrastructure
@@ -44,16 +48,16 @@ namespace ESourcing.Order
 
             #endregion
 
-            #region Configure Mapper
+            //#region Configure Mapper
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.ShouldMapProperty = p => p.GetMethod.IsPublic || p.GetMethod.IsAssembly;
-                cfg.AddProfile<OrderMappingProfile>();
-            });
-            var mapper = config.CreateMapper();
+            //var config = new MapperConfiguration(cfg =>
+            //{
+            //    cfg.ShouldMapProperty = p => p.GetMethod.IsPublic || p.GetMethod.IsAssembly;
+            //    cfg.AddProfile<OrderMappingProfile>();
+            //});
+            //var mapper = config.CreateMapper();
 
-            #endregion
+            //#endregion
 
             #region Swagger Dependencies
 
