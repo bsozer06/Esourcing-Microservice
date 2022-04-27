@@ -1,4 +1,7 @@
 using AutoMapper;
+using ESourcing.Order.Consumers;
+using ESourcing.Order.Extensions;
+using EventBusRabbitMQ;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using Ordering.Application;
 using Ordering.Application.Mapper;
 using Ordering.Infrastructure;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,16 +52,42 @@ namespace ESourcing.Order
 
             #endregion
 
-            //#region Configure Mapper
+            #region EventBus
 
-            //var config = new MapperConfiguration(cfg =>
-            //{
-            //    cfg.ShouldMapProperty = p => p.GetMethod.IsPublic || p.GetMethod.IsAssembly;
-            //    cfg.AddProfile<OrderMappingProfile>();
-            //});
-            //var mapper = config.CreateMapper();
+            services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
 
-            //#endregion
+                var factory = new ConnectionFactory()
+                {
+                    HostName = Configuration["EventBus:HostName"]
+                };
+
+                if (!string.IsNullOrWhiteSpace(Configuration["EventBus:UserName"]))
+                {
+                    factory.UserName = Configuration["EventBus:UserName"];
+                }
+
+                if (!string.IsNullOrWhiteSpace(Configuration["EventBus:Password"]))
+                {
+                    factory.Password = Configuration["EventBus:Password"];
+                }
+
+                var retryCount = 5;
+                if (!string.IsNullOrWhiteSpace(Configuration["EventBus:RetryCount"]))
+                {
+                    retryCount = int.Parse(Configuration["EventBus:RetryCount"]);
+                }
+
+                return new DefaultRabbitMQPersistentConnection(factory, retryCount, logger);
+            });
+
+            services.AddSingleton<EventBusOrderCreateConsumer>();
+
+            #endregion
+
+            // Add Automapper
+            services.AddAutoMapper(typeof(Startup));
 
             #region Swagger Dependencies
 
@@ -85,6 +115,8 @@ namespace ESourcing.Order
             {
                 endpoints.MapControllers();
             });
+
+            app.UseRabbitListener();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
