@@ -44,6 +44,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ESourcing.Infrastructure\ESourcing.Infrastructure.csproj" />
+    <ProjectReference Include="..\Ordering.Infrastructure\Ordering.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
