@@ -17,3 +17,5 @@ For frontend, Blazor is utilized with .NET MVC project.
 * ESourcing.UI
 
 Docker was used for each services. And they are managed on docker-compose.yml
+
+Resource: https://www.udemy.com/course/net-5-microservice-architecture-ile-e-auction-projesi/learn/lecture/25739538#overview
